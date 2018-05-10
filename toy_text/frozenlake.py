@@ -22,7 +22,7 @@ def setup_q_matrix(state_size, action_size):
 
 
 def main():
-    """ Q learning """
+    """ Main Q learning implementation """
 
     # env = gym.make('FrozenLakeNotSlippery-v0')
     env = gym.make('FrozenLake-v0')
@@ -46,6 +46,9 @@ def main():
 
         while not done:
 
+            # action = np.argmax(
+                # q_table[state, :] + np.random.randn(1, env.action_space.n)*(1./(i+1)))
+
             if np.random.rand(1) < epsilon:
                 action = env.action_space.sample()
             else:
@@ -65,10 +68,40 @@ def main():
         r_list.append(r_all)
 
     # env.render()
-    print("Success rate: " + str(sum(r_list)/num_episodes))
 
     print("Q:")
     print(q_table)
+    print("Train success rate: " + str(sum(r_list)/num_episodes))
+
+    # Testing
+    test_episodes = 100
+
+    # Create list to contain total rewards and steps per episodes
+    r_list = []
+
+    for i in range(test_episodes):
+        epsilon = 1./((i//100)+1)  # decay e-greedy
+
+        state = env.reset()
+        r_all = 0
+        done = False
+
+        while not done:
+
+            # if np.random.rand(1) < epsilon:
+            #     action = env.action_space.sample()
+            # else:
+            action = np.argmax(q_table[state, :])
+
+            state_new, reward, done, _ = env.step(action)
+            # env.render()
+
+            r_all += reward
+            state = state_new
+
+        r_list.append(r_all)
+
+    print("Test success rate: " + str(sum(r_list)/test_episodes))
 
 
 if __name__ == "__main__":
